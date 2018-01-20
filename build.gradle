@@ -43,6 +43,7 @@ buildscript {
 dependencies {
 
 	compile "net.lingala.zip4j:zip4j:$zip4jVersion"
+	compile('com.google.guava:guava:23.0')
 
 	compile "org.apache.httpcomponents:httpclient:$httpclientVersion"
 	compile "org.springframework.boot:spring-boot-starter-data-rest"

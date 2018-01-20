@@ -117,7 +117,7 @@ public class CodeGenController {
 	public String genCode(String project, String serviceNames, HttpServletRequest request) {
 		String[] arr = serviceNames.split(",");
 		
-		boolean res = genCode.executeGen(project, arr,appVars.outputDir);
+		boolean res = genCode.executeGen(project, arr,appVars.codeOutputDir,appVars.templates);
 		if (res) {
 			return "1";
 		} else {
@@ -132,8 +132,8 @@ public class CodeGenController {
 //		String zipDest = "/"+project +"-zip/";
 		
 		// 把生成的代码压缩成zip包，提供下载
-		String srcDir = appVars.outputDir+"/"+project +"/";
-		String zipDestPath =appVars.outputDir+"/"+project +"-zip/";
+		String srcDir = appVars.codeOutputDir+"/"+project +"/";
+		String zipDestPath =appVars.codeOutputDir+"/"+project +"-zip/";
 		
 //		String srcDir = request.getServletContext().getRealPath("/"+project +"/");
 //		String zipDestPath = request.getServletContext().getRealPath("/"+project +"-zip/");
@@ -209,7 +209,7 @@ public class CodeGenController {
 		//1.生成所有代码
 		//2.触发远程构建（复制生成的代码、构建，需要jenkins安全配置Allow anonymous read access）
 //		String srcDir = request.getServletContext().getRealPath("/"+project +"/");
-		boolean res = genCode.executeGen(project,null, appVars.outputDir);
+		boolean res = genCode.executeGen(project,null, appVars.codeOutputDir, appVars.templates);
 		if (res) {
 			HttpClient client = HttpClients.createDefault();
 			HttpGet get = new HttpGet(this.appVars.jenkinsUrl+project);

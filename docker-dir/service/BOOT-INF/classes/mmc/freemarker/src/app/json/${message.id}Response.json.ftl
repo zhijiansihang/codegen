@@ -1,1 +1,0 @@
-<#include "/lib/json.ftl">{    "header": {    "code": "0",    "message": "成功",    "timestamp": 1516197328734,    "repeat": 0    },    "body": ${buildJson(responseFields, responseGroups, "response")}}

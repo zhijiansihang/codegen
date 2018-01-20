@@ -8,13 +8,18 @@ public class AppVars {
 
 	public static final String INSTNAME = "appAppVars";
 
-	@Value("${db.service.dirpath:/Users/shawn/Documents/code/finger/src/codegen/services/}")
-	public String dbServiceDirPath;
+	@Value("${codegen.template.dir:/Users/shawn/docker/codegen/template}")
+	public String templates;
+
+	@Value("${codegen.service.output.dir:/Users/shawn/docker/codegen/service}")
+	public String serviceOutputDir;
 	
+	@Value("${codegen.code.output.dir:/Users/shawn/docker/codegen/code}")
+	public String codeOutputDir;
+
 	@Value("${jenkins.url:http://jenkins-ci:8080/view/MMC/job/mmt-ums/buildWithParameters?token=remoteBuild_mmt-ums&project=}")
 	public String jenkinsUrl;
-	
-	@Value("${mmc.output.dir:/Users/shawn/Documents/code/finger/src/codegen/code}")
-	public String outputDir;
-	
+
+
+
 }

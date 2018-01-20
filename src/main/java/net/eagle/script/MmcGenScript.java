@@ -7,6 +7,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
+import net.eagle.utils.AppVars;
+import net.eagle.utils.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -34,41 +38,40 @@ public class MmcGenScript {
 
 	private String serviceProject;
 
-	public boolean executeGen(String project, String[] serviceNameArr, String outputDir) {
+
+	@Autowired
+	AppVars appVars;
+
+	public boolean executeGen(String project, String[] serviceNameArr, String outputDir, String templatesDir) {
 		this.serviceProject = project;
-		String templatesLocation = "classpath:/mmc/freemarker";
 		String templatesSrc = "src";
+		File templates = new File(templatesDir + "/code");
 
 		File targetRoot = new File(outputDir+"/"+project);
 		//先删除旧文件
 		FileSystemUtils.deleteRecursively(targetRoot);
-		String templatesPattern = templatesLocation + "/" + templatesSrc + "/**/*";
 		int pathStart = templatesSrc.length() + 1;
-
-		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-		Resource templates = resolver.getResource(templatesLocation);
 
 		try {
 			Configuration configuration = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
-			configuration.setDirectoryForTemplateLoading(templates.getFile());
+			configuration.setDirectoryForTemplateLoading(templates);
 
-			String templatesURI = templates.getURI().getPath();
+			String templatesURI = templates.getPath();
 			
 			//用于生成单独文件
 			MmcRoot root = getRoot(getServiceNameList(serviceNameArr));
 			//用于生成MobileController
 			MmcRoot rootWithAllService = getRoot(getServiceNameList(null));
-//			MmcRoot rootWithAllService = root;
 			String lib = buildInlineLib();
+			List<File> files = Lists.newArrayList();
 
-			for (Resource resource : resolver.getResources(templatesPattern)) {
-				File srcFile = resource.getFile();
-
+			File codeTemplates = new File(templatesDir + "/code" +"/"+ templatesSrc);
+			FileUtils.getFileList(codeTemplates.getPath(), files);
+			for (File srcFile : files) {
 				if (srcFile.isDirectory()) {
 					continue;
 				}
-
-				String relativeURI = resource.getURI().getPath().substring(templatesURI.length());
+				String relativeURI = srcFile.getPath().substring(templatesURI.length());
 
 				if (isTemplate(relativeURI)) {
 					Template template = configuration.getTemplate(relativeURI, ENCODING);
@@ -142,17 +145,11 @@ public class MmcGenScript {
 
 	private MmcRoot getRoot(List<String> serviceNameList) {
 		MmcRoot root = new MmcRoot();
-//		if ("zplan".equals(this.serviceProject)){
-			root.setJavaPackage(javaPackage);
-			root.setProject(this.serviceProject);
-			root.setAndroidJavaPackage(javaPackage);
-			root.setAndroidProject(this.serviceProject);
-			root.setIosPrefix(this.serviceProject);
-//		}else {
-//			root.setJavaPackage(javaPackage);
-//			root.setProject(mmlcProject);
-//			root.setIosPrefix(mmlcProject);
-//		}
+		root.setJavaPackage(javaPackage);
+		root.setProject(this.serviceProject);
+		root.setAndroidJavaPackage(javaPackage);
+		root.setAndroidProject(this.serviceProject);
+		root.setIosPrefix(this.serviceProject);
 
 		List<MmcMessage> messages = new ArrayList<MmcMessage>();
 		root.setMessages(messages);

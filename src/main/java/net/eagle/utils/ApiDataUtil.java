@@ -38,8 +38,8 @@ public class ApiDataUtil {
 	AppVars appVars;
 	
 	private boolean inited = false;
-	private String templateDirPath = "classpath:/serviceTemplate";
-	private String serviceDirPath;
+	private String templates;
+	private String serviceOutputDir;
 
 	//没有请求和响应参数的服务列表，按serviceName字母升序排列
 	private Map<String, List<MMService>> serviceList;
@@ -62,7 +62,8 @@ public class ApiDataUtil {
     public void initWithAppVars(AppVars appVars) {
 		if(!this.inited){
 			this.appVars = appVars;
-			this.serviceDirPath = this.appVars.dbServiceDirPath;
+			this.serviceOutputDir = this.appVars.serviceOutputDir;
+			this.templates = appVars.templates;
 			this.serviceList = new HashMap<>();
 			this.serviceMap = new HashMap<>();
 		}
@@ -81,7 +82,7 @@ public class ApiDataUtil {
 	
 	private void loadFromJsonFile(String project){
 		
-		File targetRoot = new File(this.serviceDirPath +"/"+ project);
+		File targetRoot = new File(this.serviceOutputDir +"/"+ project);
 		log.info("[initFromJsonFile][读取文件内容][filePath:"+targetRoot.getAbsolutePath()+"]");
 		File[] files = targetRoot.listFiles();
 		for (File file : files) {
@@ -255,7 +256,7 @@ public class ApiDataUtil {
 	 * 将服务对应的json文件删除
 	 * */
 	private void deleteJsonFile(String project, String serviceName) {
-		File targetRoot = new File(this.serviceDirPath +"/" + project);
+		File targetRoot = new File(this.serviceOutputDir +"/" + project);
 		File out = new File(targetRoot, serviceName + ".json");
 		FileSystemUtils.deleteRecursively(out);
 	}
@@ -268,25 +269,21 @@ public class ApiDataUtil {
 	private boolean saveJsonFile(String project, String oldServiceName, MMService service){
 		
 		boolean result = false;
-		String templatesPattern = this.templateDirPath + "/**/*";
-		File targetRoot = new File(this.serviceDirPath +"/"+ project);
-
-		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+		File targetRoot = new File(this.serviceOutputDir +"/"+ project);
 
 		try {
-			Resource templatesDir = resolver.getResource(this.templateDirPath);
-			
+			File templates = new File(this.templates + "/service");
+
 			Configuration configuration = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
-			configuration.setDirectoryForTemplateLoading(templatesDir.getFile());
+			configuration.setDirectoryForTemplateLoading(templates);
 
-			for (Resource resource : resolver.getResources(templatesPattern)) {
-				File srcFile = resource.getFile();
 
+			File[] files = templates.listFiles();
+			for (File srcFile : files) {
 				if (srcFile.isDirectory()) {
 					continue;
 				}
-
-				String resourcePath = resource.getURI().getPath();
+				String resourcePath = srcFile.getPath();
 				int index = resourcePath.lastIndexOf("/");
 				String relativeURI = resourcePath.substring(index + 1);
 
