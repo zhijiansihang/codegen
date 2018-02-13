@@ -18,9 +18,9 @@ apply plugin: 'org.springframework.boot'
 sourceCompatibility = 1.8
 
 repositories {
-	maven {
-		url "http://49.4.160.163:8093/nexus/content/groups/public/"
-	}
+//	maven {
+//		url "http://49.4.160.163:8093/nexus/content/groups/public/"
+//	}
 	maven {
 		url "http://maven.aliyun.com/nexus/content/groups/public/"
 	}
@@ -33,6 +33,9 @@ buildscript {
 		zip4jVersion = '1.3.2'
 	}
 	repositories {
+		maven {
+			url "http://maven.aliyun.com/nexus/content/groups/public/"
+		}
 		mavenCentral()
 	}
 	dependencies {
